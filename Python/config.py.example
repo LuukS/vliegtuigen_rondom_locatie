@@ -1,0 +1,9 @@
+class Config(object):
+  database = "MySQL or SQLite"
+  DATABASE_CONFIG = {
+          'host': '<ip_address>',
+          'port': '<port_number>',
+          'user': '<username>',
+          'password': '<password>',
+          'dbname': '<database_name>',
+  }
