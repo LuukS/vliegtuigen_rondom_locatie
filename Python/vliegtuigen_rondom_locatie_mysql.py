@@ -49,10 +49,10 @@ def haalSensorData(strUrl=None):
         try:
             r = requests.get(url=strUrl, params=[],timeout=timeout_seconds)
             if not r.ok:
-                raise Exception(f"URL '{strUrl}' gaf geen resultaat terug")
+                raise Exception("URL '{}' gaf geen resultaat terug".format(strUrl))
             return r
         except:
-            raise Exception(f"De url {strUrl} bestaat niet, of reageert niet binnen {timeout_seconds} seconden")
+            raise Exception("De url {} bestaat niet, of reageert niet binnen {} seconden".format(strUrl,timeout_seconds))
     else:
         return None
 
@@ -87,12 +87,13 @@ def start():
         conn = Connection()
         cur = conn.db.cursor()
         if conn.isConnected():
-            cur.execute("""SELECT table_name FROM information_schema.tables WHERE table_schema = 'test_db' AND table_name in('hoge_vliegtuigen','lage_vliegtuigen','meetpunten');""")
+            # cur.execute("""SELECT table_name FROM information_schema.tables WHERE table_schema = 'deb146705n2_geluidsnet' AND table_name in('hoge_vliegtuigen','lage_vliegtuigen','meetpunten');""")
+            cur.execute("""SELECT table_name FROM information_schema.tables WHERE table_schema = '{}' AND table_name in('hoge_vliegtuigen','lage_vliegtuigen','meetpunten');""".format(Config.DATABASE_CONFIG["dbname"]))
             listOfTables = cur.fetchall()
             if len(listOfTables) != 3:
                 exit("Niet alle benodigde tabellen zijn beschikbaar in de database")
             else:
-                print(f"De benodige {len(listOfTables)} tabellen zijn gevonden: {listOfTables}")
+                print("De benodige {} tabellen zijn gevonden: {}".format(len(listOfTables),listOfTables))
     except Exception as e:
         print(e)
         print("Geen verbinding met MySQL kunnen maken")
@@ -107,7 +108,7 @@ def start():
     vb.setLocatie(locatie)
     print(vb.isBinnenGebied(119566,486821))
     strUrl = "http://www.sensornet.nl/xml/sensornet.xml?time=%i" % (nu)
-    print(f"URL: {strUrl}")
+    print("URL: {}".format(strUrl))
     try:
         r = haalSensorData(strUrl)
         if r is not None:
@@ -125,16 +126,16 @@ def start():
     dctHogeVliegtuigenFlights = {}
     dctMeetpunten,dctHogeVliegtuigen,dctLageVliegtuigen = vb.verwerkGeluidsnet(sensornetData)
 
-    print(f"Meetpunten: {dctMeetpunten}")
-    print(f"Hoge vliegtuigen: {dctHogeVliegtuigen}")
-    print(f"Lage vliegtuigen: {dctLageVliegtuigen}")
+    print("Meetpunten: {}".format(dctMeetpunten))
+    print("Hoge vliegtuigen: {}".format(dctHogeVliegtuigen))
+    print("Lage vliegtuigen: {}".format(dctLageVliegtuigen))
 
     # INSERT INTO table_name (column1, column2, column3, ...) VALUES (value1, value2, value3, ...);
     strFieldsMP = "meetpuntid,Straat,postcode,plaats,dBA,status,_Size,_Alpha,Point_RD,Point,_URL,_FillColor,_Symbol,_ScaleMax"
     strFieldsV = "Altitude,Speed,Callsign,Operator,Type,Registration,_Alpha,_Angle,_Symbol,_Size,Point_RD,Point,_FillColor,_LineColor"
 
-    strInsertMP = f"INSERT INTO meetpunten ({strFieldsMP}) VALUES ('UB081','Uiterweg','1431 AS','Aalsmeer',46,'OK',31,55,'110342,475386','4.733033,52.264695','http://www.sensornet.nl/project/aalsmeer/aalsmeer','0x00ff66','Punt',5000000)"
-    strInsertV = f"INSERT INTO lage_vliegtuigen ({strFieldsV}) VALUES ('30 m','81 km/h','KLM974','','','',50,171,'Plane',10,'108915,483983','4.710959, 52.341841','0x000000','0x000000')"
+    strInsertMP = "INSERT INTO meetpunten ({}) VALUES ('UB081','Uiterweg','1431 AS','Aalsmeer',46,'OK',31,55,'110342,475386','4.733033,52.264695','http://www.sensornet.nl/project/aalsmeer/aalsmeer','0x00ff66','Punt',5000000)".format(strFieldsMP)
+    strInsertV = "INSERT INTO lage_vliegtuigen ({}) VALUES ('30 m','81 km/h','KLM974','','','',50,171,'Plane',10,'108915,483983','4.710959, 52.341841','0x000000','0x000000')".format(strFieldsV)
 
     for key in list(dctMeetpunten.keys()):
         dctMeetpunt = dctMeetpunten[key]
@@ -142,10 +143,13 @@ def start():
             strValuesMP = ""
             for fld in strFieldsMP.split(","):
                 if fld == "postcode":
-                    strValuesMP += f"'{dctMeetpunt[fld].replace(' ','')}',"
+                    # strValuesMP += f"'{dctMeetpunt[fld].replace(' ','')}',"
+                    strValuesMP += "'{}',".format(dctMeetpunt[fld].replace(' ',''))
                 else:
-                    strValuesMP += f"'{dctMeetpunt[fld]}',"
-            strInsertMP = f"INSERT INTO meetpunten ({strFieldsMP}) VALUES ({strValuesMP[0:-1]})"
+                    # strValuesMP += f"'{dctMeetpunt[fld]}',"
+                    strValuesMP += "'{}',".format(dctMeetpunt[fld])
+            # strInsertMP = f"INSERT INTO meetpunten ({strFieldsMP}) VALUES ({strValuesMP[0:-1]})"
+            strInsertMP = "INSERT INTO meetpunten ({}) VALUES ({})".format(strFieldsMP,strValuesMP[0:-1])
             # print(strInsertMP)
             cur.execute(strInsertMP)
             conn.commit()
@@ -156,8 +160,10 @@ def start():
         if dctVliegtuig != {}:
             strValuesLV = ""
             for fld in strFieldsV.split(","):
-                strValuesLV += f"'{dctVliegtuig[fld]}',"
-            strInsertLV = f"INSERT INTO lage_vliegtuigen ({strFieldsV}) VALUES ({strValuesLV[0:-1]})"
+                # strValuesLV += f"'{dctVliegtuig[fld]}',"
+                strValuesLV += "'{}',".format(dctVliegtuig[fld])
+            # strInsertLV = f"INSERT INTO lage_vliegtuigen ({strFieldsV}) VALUES ({strValuesLV[0:-1]})"
+            strInsertLV = "INSERT INTO lage_vliegtuigen ({}) VALUES ({})".format(strFieldsV,strValuesLV[0:-1])
             # print(strInsertLV)
             cur.execute(strInsertLV)
             conn.commit()
@@ -168,8 +174,10 @@ def start():
         if dctVliegtuig != {}:
             strValuesHV = ""
             for fld in strFieldsV.split(","):
-                strValuesHV += f"'{dctVliegtuig[fld]}',"
-            strInsertHV = f"INSERT INTO hoge_vliegtuigen ({strFieldsV}) VALUES ({strValuesHV[0:-1]})"
+                # strValuesHV += f"'{dctVliegtuig[fld]}',"
+                strValuesHV += "'{}',".format(dctVliegtuig[fld])
+            # strInsertHV = f"INSERT INTO hoge_vliegtuigen ({strFieldsV}) VALUES ({strValuesHV[0:-1]})"
+            strInsertHV = "INSERT INTO hoge_vliegtuigen ({}) VALUES ({})".format(strFieldsV,strValuesHV[0:-1])
             # print(strInsertHV)
             cur.execute(strInsertHV)
             conn.commit()

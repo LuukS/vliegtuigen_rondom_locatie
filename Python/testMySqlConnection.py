@@ -6,16 +6,16 @@ from connection import Connection
 
 print ("start")
 testen = Connection()
-print(f"Database connectie geslaagd: {testen.isConnected()}")
+print("Database connectie geslaagd: {}".format(testen.isConnected()))
 if testen.isConnected():
     cur = testen.db.cursor()
-    cur.execute("SELECT * FROM foo")
+    cur.execute("SELECT * FROM meetpunten")
     myresult = cur.fetchall()
     for x in myresult:
       print(x)
-    cur.execute("insert foo VALUES ()")
+    cur.execute("insert meetpunten VALUES ()")
     cur.execute("COMMIT")
-    cur.execute("SELECT * FROM foo")
+    cur.execute("SELECT * FROM meetpunten")
     myresult = cur.fetchall()
     for x in myresult:
       print(x)

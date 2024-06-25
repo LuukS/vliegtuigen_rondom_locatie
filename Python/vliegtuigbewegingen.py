@@ -129,8 +129,10 @@ def handleHoogVliegtuig(mp):
             rd_from_wgs = rijksdriehoek.wgs_to_rd(lat,lon)
             x = int(rd_from_wgs[0])
             y = int(rd_from_wgs[1])
-            rd = f"POINT({x} {y})"
-            wgs84 = f"POINT({lon} {lat})"
+            # rd = f"POINT({x} {y})"
+            # wgs84 = f"POINT({lon} {lat})"
+            rd = "POINT({} {})".format(x,y)
+            wgs84 = "POINT({} {})".format(lon,lat)
             dctHoogVliegtuig["Point_RD"] = rd
             dctHoogVliegtuig["Point"] = wgs84 #getText(coordinates.childNodes)
             if blnPrintValues == True:
@@ -216,8 +218,10 @@ def handleLaagVliegtuig(mp):
             rd_from_wgs = rijksdriehoek.wgs_to_rd(lat,lon)
             x = int(rd_from_wgs[0])
             y = int(rd_from_wgs[1])
-            rd = f"POINT({x} {y})"
-            wgs84 = f"POINT({lon} {lat})"
+            # rd = f"POINT({x} {y})"
+            # wgs84 = f"POINT({lon} {lat})"
+            rd = "POINT({} {})".format(x,y)
+            wgs84 = "POINT({} {})".format(lon,lat)
             dctLaagVliegtuig["Point_RD"] = rd
             dctLaagVliegtuig["Point"] = wgs84 #getText(coordinates.childNodes)
             if blnPrintValues == True:
@@ -270,7 +274,8 @@ def handleHogeFlight(mp):
             coordinates = m.getElementsByTagName("Coordinates")[0]
             lon = float(getText(coordinates.childNodes).split(",")[0])
             lat = float(getText(coordinates.childNodes).split(",")[1])
-            wgs84 = f"POINT({lon} {lat})"
+            # wgs84 = f"POINT({lon} {lat})"
+            wgs84 = "POINT({} {})".format(lon,lat)
             dctHogeVliegtuigenFlight["point"] = wgs84 #getText(coordinates.childNodes)
             if blnPrintValues == True:
                 print(getText(coordinates.childNodes))
@@ -383,8 +388,10 @@ def handleMeetPunten(mps):
             rd_from_wgs = rijksdriehoek.wgs_to_rd(lat,lon)
             x = int(rd_from_wgs[0])
             y = int(rd_from_wgs[1])
-            rd = f"POINT({x} {y})"
-            wgs84 = f"POINT({lon} {lat})"
+            # rd = f"POINT({x} {y})"
+            # wgs84 = f"POINT({lon} {lat})"
+            rd = "POINT({} {})".format(x,y)
+            wgs84 = "POINT({} {})".format(lon,lat)
             dctMeetpunt["Point_RD"] = rd
             dctMeetpunt["Point"] = wgs84 #getText(point.childNodes)
             if blnPrintValues == True:
@@ -445,7 +452,7 @@ def main():
     try:
         r = requests.get(url=strUrl, params=[])
         if not r.ok:
-            raise Exception(f"URL '{strUrl}' gaf geen resultaat terug")
+            raise Exception("URL '{}' gaf geen resultaat terug".format(strUrl))
     except:
         raise Exception
     # proxy_support = urllib2.ProxyHandler({'http': 'http://cacheflow.nic.agro.nl:8080/'})

@@ -56,3 +56,10 @@ _fillcolor varchar(255),
 _linecolor varchar(255),
 timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Maak indexen
+CREATE INDEX idx_mp_timestamp  ON meetpunten ( timestamp );
+
+CREATE INDEX idx_hv_timestamp  ON hoge_vliegtuigen ( timestamp );
+
+CREATE INDEX idx_lv_timestamp  ON lage_vliegtuigen ( timestamp );
